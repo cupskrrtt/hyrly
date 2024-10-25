@@ -36,6 +36,6 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
 ## Todo
-[x] setup auth
-[ ] setup user flow if it is the first time
-[ ] setup employer dashboard
+- [x] setup auth
+- [ ] setup user flow if it is the first time
+- [ ] setup employer dashboard
