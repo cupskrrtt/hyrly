@@ -1,5 +1,6 @@
 import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
+import { api } from "./_generated/api";
 import { Webhook } from "svix";
 import { WebhookEvent } from "@clerk/nextjs/server";
 
@@ -19,7 +20,19 @@ const handleClerkWebhook = httpAction(async (ctx, request) => {
 		return new Response("Error occured", { status: 400 });
 	}
 
-	switch (event.type /* ... */) {
+	switch (event.type) {
+		case "user.created":
+			const { email_addresses, id } = event.data;
+			await ctx.runMutation(api.users.createUser, {
+				clerk_id: id,
+				email: email_addresses[0].email_address,
+				role: "SEEKER",
+			});
+			break;
+		case "user.updated":
+			break;
+		case "user.deleted":
+			break;
 	}
 	return new Response(null, { status: 200 });
 });

@@ -10,14 +10,24 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Link from "next/link";
+import Image from "next/image";
+import { AvatarImage } from "@radix-ui/react-avatar";
 
 export default function Header() {
-	const { user } = useUser();
 	return (
-		<div className="bg-muted">
+		<nav className="bg-muted">
+			<HeaderProfile />
+		</nav>
+	);
+}
+
+function HeaderProfile() {
+	const { user } = useUser();
+
+	return (
+		<>
 			<Unauthenticated>
 				<SignInButton />
 			</Unauthenticated>
@@ -26,7 +36,13 @@ export default function Header() {
 					<DropdownMenuTrigger>
 						{user?.hasImage ? (
 							<Avatar>
-								<AvatarImage src={user.imageUrl} />
+								<AvatarImage asChild src={user?.imageUrl as string}>
+									<Image
+										src={user?.imageUrl as string}
+										alt={user?.fullName as string}
+										fill
+									/>
+								</AvatarImage>
 							</Avatar>
 						) : (
 							<Avatar>
@@ -73,6 +89,6 @@ export default function Header() {
 				</DropdownMenu>
 			</Authenticated>
 			<AuthLoading>Loading</AuthLoading>
-		</div>
+		</>
 	);
 }

@@ -37,5 +37,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## Todo
 - [x] setup auth
-- [ ] setup user flow if it is the first time
+- [ ] setup user profile
+- [ ] setup flow to change seeker account to employer account
 - [ ] setup employer dashboard
