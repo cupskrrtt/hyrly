@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import Provider from "./provider";
 import Header from "./_components/header";
+import { ClerkProvider } from "@clerk/nextjs";
 
 const geistSans = localFont({
 	src: "./fonts/GeistVF.woff",
@@ -30,12 +31,17 @@ export default function RootLayout({
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased h-screen`}
 			>
-				<Provider>
-					<div className="flex flex-col">
-						<Header />
-						{children}
-					</div>
-				</Provider>
+				<ClerkProvider
+					dynamic
+					publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY!}
+				>
+					<Provider>
+						<div className="flex flex-col">
+							<Header />
+							{children}
+						</div>
+					</Provider>
+				</ClerkProvider>
 			</body>
 		</html>
 	);

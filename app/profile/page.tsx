@@ -1,154 +1,228 @@
-"use client";
-
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-	Download,
-	Edit,
-	Github,
-	Linkedin,
-	Mail,
-	MapPin,
-	Phone,
-	Share2,
-} from "lucide-react";
-import { useUser } from "@clerk/nextjs";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+	IconBriefcase,
+	IconDownload,
+	IconEdit,
+	IconMail,
+	IconMapPin,
+	IconPhone,
+	IconSchool,
+} from "@tabler/icons-react";
+import { fetchQuery } from "convex/nextjs";
+import { api } from "@/convex/_generated/api";
+import { Avatar } from "@/components/ui/avatar";
+import { AvatarImage } from "@radix-ui/react-avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTrigger,
+	DialogDescription,
+} from "@/components/ui/dialog";
+import { auth } from "@clerk/nextjs/server";
+import EditProfileForm from "./_components/edit-profile-form";
+import { Doc } from "@/convex/_generated/dataModel";
 
-export default function ProfilePage() {
-	const { user } = useUser();
+export default async function ProfilePage() {
+	const { userId } = await auth();
+
+	const userProfile = await fetchQuery(api.users.getUserProfile, {
+		clerk_id: userId || "",
+	});
 
 	return (
-		<section>
-			<div className="flex justify-between items-center">
-				<h1 className="text-3xl font-bold">Profile</h1>
-				<div className="space-x-2">
-					<Button variant="outline" size="sm">
-						<Download className="mr-2 h-4 w-4" />
-						Download CV
-					</Button>
-					<Button variant="outline" size="sm">
-						<Share2 className="mr-2 h-4 w-4" />
-						Share Profile
-					</Button>
-					<Button variant="default" size="sm">
-						<Edit className="mr-2 h-4 w-4" />
-						Edit Profile
-					</Button>
-				</div>
-			</div>
+		<div className="container mx-auto p-4 space-y-6">
 			<Card>
-				<CardContent className="flex items-center space-x-4 p-6">
-					<Image
-						src={user?.imageUrl as string}
-						alt={user?.fullName as string}
-						width={128}
-						height={128}
-						className="rounded-full"
-					/>
-					<div>
-						<h2 className="text-2xl font-bold">John Doe</h2>
-						<p className="text-muted-foreground">Senior Software Engineer</p>
-						<p className="flex items-center mt-2">
-							<MapPin className="mr-2 h-4 w-4" />
-							San Francisco, CA
-						</p>
-						<div className="flex space-x-4 mt-2">
-							<a
-								href="mailto:john@example.com"
-								className="text-muted-foreground hover:text-primary"
-							>
-								<Mail className="h-5 w-5" />
-							</a>
-							<a
-								href="tel:+11234567890"
-								className="text-muted-foreground hover:text-primary"
-							>
-								<Phone className="h-5 w-5" />
-							</a>
-							<a
-								href="https://github.com/johndoe"
-								className="text-muted-foreground hover:text-primary"
-							>
-								<Github className="h-5 w-5" />
-							</a>
-							<a
-								href="https://linkedin.com/in/johndoe"
-								className="text-muted-foreground hover:text-primary"
-							>
-								<Linkedin className="h-5 w-5" />
-							</a>
+				<CardContent className="p-6 space-y-4">
+					<div className="flex flex-col md:flex-row gap-6 items-center justify-between">
+						<div className="flex flex-col md:flex-row gap-6 items-center">
+							<Avatar className="w-32 h-32">
+								<AvatarImage
+									src={userProfile?.profile.imageUrl}
+									alt={userProfile?.profile.name}
+								/>
+							</Avatar>
+							<div className="space-y-2">
+								<h1 className="text-3xl font-bold">
+									{userProfile?.profile.name}
+								</h1>
+								<p className="text-xl text-muted-foreground">
+									{userProfile?.profile.title}
+								</p>
+								<div className="flex flex-wrap gap-2">
+									<Badge
+										variant="secondary"
+										className="flex items-center gap-1"
+									>
+										<IconMapPin className="w-3 h-3" />
+										{userProfile?.profile.location}
+									</Badge>
+									<Badge
+										variant="secondary"
+										className="flex items-center gap-1"
+									>
+										<IconMail className="w-3 h-3" />
+										{userProfile?.profile.email}
+									</Badge>
+									<Badge
+										variant="secondary"
+										className="flex items-center gap-1"
+									>
+										<IconPhone className="w-3 h-3" />
+										{userProfile?.profile.phone}
+									</Badge>
+								</div>
+							</div>
 						</div>
+						<Dialog>
+							<DialogTrigger asChild className="self-start">
+								<Button>
+									<IconEdit />
+								</Button>
+							</DialogTrigger>
+							<DialogContent>
+								<DialogHeader>Edit Profile</DialogHeader>
+								<DialogDescription>
+									Make change to your profile
+								</DialogDescription>
+								<EditProfileForm
+									userProfile={userProfile?.profile as Doc<"user_profile">}
+								/>
+							</DialogContent>
+						</Dialog>
+					</div>
+					<hr className="w-full" />
+					<div>
+						<p>{userProfile?.profile.about}</p>
 					</div>
 				</CardContent>
 			</Card>
 
-			<Tabs defaultValue="overview">
-				<TabsList>
-					<TabsTrigger value="overview">Overview</TabsTrigger>
-					<TabsTrigger value="projects">Projects</TabsTrigger>
-					<TabsTrigger value="experience">Experience</TabsTrigger>
-				</TabsList>
-				<TabsContent value="overview" className="space-y-6">
-					<Card>
-						<CardHeader>
-							<CardTitle>About</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<p>
-								Experienced software engineer with a passion for building
-								scalable web applications and solving complex problems. Skilled
-								in JavaScript, React, Node.js, and cloud technologies. Always
-								eager to learn and adapt to new technologies and methodologies.
-							</p>
-						</CardContent>
-					</Card>
-					<Card>
-						<CardHeader>
-							<CardTitle>Contact Information</CardTitle>
-						</CardHeader>
-						<CardContent className="space-y-2">
-							<p className="flex items-center">
-								<Mail className="mr-2 h-4 w-4" />
-								john@example.com
-							</p>
-							<p className="flex items-center">
-								<Phone className="mr-2 h-4 w-4" />
-								+1 (123) 456-7890
-							</p>
-							<p className="flex items-center">
-								<Github className="mr-2 h-4 w-4" />
-								github.com/johndoe
-							</p>
-							<p className="flex items-center">
-								<Linkedin className="mr-2 h-4 w-4" />
-								linkedin.com/in/johndoe
-							</p>
-						</CardContent>
-					</Card>
-				</TabsContent>
-				<TabsContent value="projects">
-					<Card>
-						<CardHeader>
-							<CardTitle>Projects</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<p>Projects content goes here.</p>
-						</CardContent>
-					</Card>
-				</TabsContent>
-				<TabsContent value="experience">
-					<Card>
-						<CardHeader>
-							<CardTitle>Experience</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<p>Experience content goes here.</p>
-						</CardContent>
-					</Card>
-				</TabsContent>
-			</Tabs>
-		</section>
+			<div className="grid md:grid-cols-3 gap-6">
+				<Card className="md:col-span-2">
+					<CardHeader>
+						<CardTitle>Projects</CardTitle>
+					</CardHeader>
+					<CardContent></CardContent>
+				</Card>
+
+				<Card>
+					<CardHeader>
+						<CardTitle>Skills</CardTitle>
+					</CardHeader>
+					<CardContent className="space-y-4">
+						<div>
+							<h3 className="font-semibold mb-2">Expert</h3>
+							<div className="flex flex-wrap gap-2">
+								{["JavaScript", "React", "Node.js"].map((skill) => (
+									<Badge key={skill} variant="default">
+										{skill}
+									</Badge>
+								))}
+							</div>
+						</div>
+						<div>
+							<h3 className="font-semibold mb-2">Proficient</h3>
+							<div className="flex flex-wrap gap-2">
+								{["TypeScript", "AWS", "Python", "GraphQL"].map((skill) => (
+									<Badge key={skill} variant="secondary">
+										{skill}
+									</Badge>
+								))}
+							</div>
+						</div>
+						<div>
+							<h3 className="font-semibold mb-2">Knowledgeable</h3>
+							<div className="flex flex-wrap gap-2">
+								{["Docker", "Kubernetes", "Machine Learning", "Rust"].map(
+									(skill) => (
+										<Badge key={skill} variant="outline">
+											{skill}
+										</Badge>
+									),
+								)}
+							</div>
+						</div>
+					</CardContent>
+				</Card>
+			</div>
+
+			<Card>
+				<CardHeader>
+					<CardTitle>Experience</CardTitle>
+				</CardHeader>
+				<CardContent className="space-y-6">
+					{[
+						{
+							title: "Senior Software Engineer",
+							company: "Tech Innovators Inc.",
+							period: "2019 - Present",
+							description:
+								"Lead development of cloud-based enterprise solutions.",
+						},
+						{
+							title: "Software Engineer",
+							company: "StartUp Solutions",
+							period: "2016 - 2019",
+							description:
+								"Developed and maintained multiple web applications using React and Node.js.",
+						},
+					].map((job, index) => (
+						<div key={index} className="flex gap-4">
+							<IconBriefcase className="w-5 h-5 mt-1 text-muted-foreground" />
+							<div>
+								<h3 className="font-semibold">{job.title}</h3>
+								<p className="text-sm text-muted-foreground">
+									{job.company} | {job.period}
+								</p>
+								<p className="mt-1">{job.description}</p>
+							</div>
+						</div>
+					))}
+				</CardContent>
+			</Card>
+			<Card>
+				<CardHeader>
+					<CardTitle>Education</CardTitle>
+				</CardHeader>
+				<CardContent className="space-y-6">
+					{[
+						{
+							degree: "Master of Science in Computer Science",
+							school: "Tech University",
+							year: "2016",
+						},
+						{
+							degree: "Bachelor of Science in Software Engineering",
+							school: "State University",
+							year: "2014",
+						},
+					].map((edu, index) => (
+						<div key={index} className="flex gap-4">
+							<IconSchool className="w-5 h-5 mt-1 text-muted-foreground" />
+							<div>
+								<h3 className="font-semibold">{edu.degree}</h3>
+								<p className="text-sm text-muted-foreground">
+									{edu.school} | {edu.year}
+								</p>
+							</div>
+						</div>
+					))}
+				</CardContent>
+			</Card>
+
+			<div className="flex justify-center space-x-4">
+				<Button size="lg" className="flex items-center gap-2">
+					<IconEdit className="w-4 h-4" />
+					Edit Profile
+				</Button>
+				<Button size="lg" variant="outline" className="flex items-center gap-2">
+					<IconDownload className="w-4 h-4" />
+					Download Resume
+				</Button>
+			</div>
+		</div>
 	);
 }
