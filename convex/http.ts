@@ -22,11 +22,26 @@ const handleClerkWebhook = httpAction(async (ctx, request) => {
 
 	switch (event.type) {
 		case "user.created":
-			const { email_addresses, id } = event.data;
+			const { id, first_name, last_name, email_addresses } = event.data;
+			const name = `${first_name} ${last_name}`;
+
 			await ctx.runMutation(api.users.createUser, {
 				clerk_id: id,
-				email: email_addresses[0].email_address,
 				role: "SEEKER",
+			});
+
+			const user = await ctx.runQuery(api.users.getUser, {
+				clerk_id: id,
+			});
+
+			await ctx.runMutation(api.users.createUserProfile, {
+				user_id: user[0]._id,
+				name,
+				email: email_addresses[0].email_address,
+				title: "",
+				location: "",
+				about: "",
+				phone: "",
 			});
 			break;
 		case "user.updated":

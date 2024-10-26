@@ -12,7 +12,7 @@ export default function Home() {
 	return (
 		<div>
 			{jobs?.map((job) => (
-				<Card id={job._id}>
+				<Card key={job._id}>
 					<CardHeader>
 						<CardTitle>{job.title}</CardTitle>
 					</CardHeader>
